@@ -10,8 +10,27 @@ interface Props {
   people: Person[];
 }
 
+type ParentLinkProps = {
+  parentName: string | null;
+  parent: { slug: string } | null;
+  className?: string;
+};
+
+const ParentLink: React.FC<ParentLinkProps> = ({
+  parentName,
+  parent,
+  className,
+}) =>
+  parent ? (
+    <Link to={`/people/${parent.slug}`} className={className || ''}>
+      {parentName}
+    </Link>
+  ) : (
+    <>{parentName || '-'}</>
+  );
+
 export const PersonInfo: FC<Props> = ({ person, people }) => {
-  const { personSlug } = useParams();
+  const { personSlug } = useParams<{ personSlug: string }>();
 
   const mother = findPersonByName(people, person.motherName);
   const father = findPersonByName(people, person.fatherName);
@@ -36,20 +55,14 @@ export const PersonInfo: FC<Props> = ({ person, people }) => {
       <td>{person.born}</td>
       <td>{person.died}</td>
       <td>
-        {mother ? (
-          <Link to={`/people/${mother.slug}`} className={'has-text-danger'}>
-            {person.motherName}
-          </Link>
-        ) : (
-          <>{person.motherName || '-'}</>
-        )}
+        <ParentLink
+          parentName={person.motherName}
+          parent={mother ?? null}
+          className="has-text-danger"
+        />
       </td>
       <td>
-        {father ? (
-          <Link to={`/people/${father.slug}`}>{person.fatherName}</Link>
-        ) : (
-          <>{person.fatherName || '-'}</>
-        )}
+        <ParentLink parentName={person.fatherName} parent={father ?? null} />
       </td>
     </tr>
   );
